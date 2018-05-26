@@ -6,13 +6,14 @@ library(maps)
 server <- function(input, output){
   
   ####---------code for button toggling ---------------- #####
-  values <- reactiveValues(home = 0, pie = 0, geo = 0, cloud = 0)
+  values <- reactiveValues(home = 0, pie = 0, geo = 0, cloud = 0, predict=0)
   
   observeEvent(input$home, {
     values$home <- 1
     values$pie <- 0
     values$geo <- 0
     values$cloud <-0
+    values$predict = 0
   })
   
   observeEvent(input$pie, {
@@ -20,6 +21,7 @@ server <- function(input, output){
     values$pie <- 1
     values$geo <- 0
     values$cloud <- 0
+    values$predict = 0
   })
   
   observeEvent(input$geo, {
@@ -27,6 +29,7 @@ server <- function(input, output){
     values$pie <- 0
     values$geo <- 1
     values$cloud <-0
+    values$predict = 0
   })
   
   observeEvent(input$cloud, {
@@ -34,8 +37,16 @@ server <- function(input, output){
     values$pie <- 0
     values$geo <- 0
     values$cloud <-1
+    values$predict = 0
   })
   
+  observeEvent(input$predict, {
+    values$home <- 0
+    values$pie <- 0
+    values$geo <- 0
+    values$cloud <-0
+    values$predict = 1
+  })
   output$main <- renderUI(
     {
       
@@ -43,6 +54,33 @@ server <- function(input, output){
       {
         tagList(
           h2("About the project"),hr(),paste("Facebook Event Analysis and Interested Count Predictor is a project for analysis of Facebook Events and for getting interested count prediction.A Random Forest model was used for training on a large dataset of ~1000 events.Feature engineering,Data cleaning, Data selection and many other techniques were used for this task.")
+                                             ,h3("Data Source"),br(),
+
+pre("The data of events from around the world was collected from Facebook using its Graph API belonging to following five categories :
+I. Travel
+II. Food
+III. Music
+IV. Art
+V. Education
+Approximately 250 events from each of these categories (total 1250 events) was fetched from the Graph Api and stored into a MongoDB database.
+"),br(),
+h3("Dataset"),br(),
+pre("The dataset consists of 14 major attributes listed below:
+Name (String) - The event name
+Description (String) - The description posted by owner for the event
+Start Time (Time) - Start time of the event
+End Time (Time) - End Time of the event
+Timezone (String) - The timezone of the event. This is of the form Country-code/Region.
+Latitude (Real) - The latitude of the event
+Longitude (Real) - The longitude of the event.
+Type (String) - The category of the event i.e travel, food, music, art or education.
+Attending_count (integer) - count of people attending the event
+Declined_count (integer) - count of people who declined the event 
+Interested_count (integer) - count of people who marked “Interested” in the event
+Maybe_count (integer) - same as interested count
+Noreply_count (integer) - count of no-reply of invitees in an event.
+Updated_time (Time) - The most recent time of the event (if updated by the owner).
+")
         )
       }else
         if(values$pie)
@@ -88,9 +126,55 @@ server <- function(input, output){
             )
           )
         }
+
+       else
+         if(values$predict)
+         {
+           tagList(
+             h2("Predictions!"),hr(),paste("Lets make some predictions of interested people count in your event. Two models were used and fwollowing is their comparison"),br(),br(),
+             numericInput(inputId = "inpt_e_id",label="Enter a valid event Id as hosted on Facebook.", value = 0),
+             actionButton('pred',"Predict!"),
+             br(),br(),verbatimTextOutput("prediction"),
+             h3("Results of Random Forest"),hr(),
+             paste("RMSE"),textOutput("rmse1"),br(),
+             tags$b("Variable Importance Graph"),br(),plotOutput("varimp1"),br(),
+             tags$b("Predicted vs Actual Interested Count"),br(),plotOutput("predg1"),
+             h3("Results of XGBOOST"),hr(),
+             paste("RMSE"),textOutput("rmse2"),br(),
+             tags$b("Variable Importance Graph"),br(),plotOutput("varimp2"),br(),
+             tags$b("Predicted vs Actual Interested Count"),br(),plotOutput("predg2")
+           )
+         }
       else{
-        tagList(
-          h2("About the project"),hr(),paste("This is created by Sajal Subodh")
+          tagList(
+            h2("About the project"),hr(),paste("Facebook Event Analysis and Interested Count Predictor is a project for analysis of Facebook Events and for getting interested count prediction.A Random Forest model was used for training on a large dataset of ~1000 events.Feature engineering,Data cleaning, Data selection and many other techniques were used for this task.")
+            ,h3("Data Source"),br(),
+            
+            pre("The data of events from around the world was collected from Facebook using its Graph API belonging to following five categories :
+                I. Travel
+                II. Food
+                III. Music
+                IV. Art
+                V. Education
+                Approximately 250 events from each of these categories (total 1250 events) was fetched from the Graph Api and stored into a MongoDB database.
+                "),br(),
+h3("Dataset"),br(),
+pre("The dataset consists of 14 major attributes listed below:
+    Name (String) - The event name
+    Description (String) - The description posted by owner for the event
+    Start Time (Time) - Start time of the event
+    End Time (Time) - End Time of the event
+    Timezone (String) - The timezone of the event. This is of the form Country-code/Region.
+    Latitude (Real) - The latitude of the event
+    Longitude (Real) - The longitude of the event.
+    Type (String) - The category of the event i.e travel, food, music, art or education.
+    Attending_count (integer) - count of people attending the event
+    Declined_count (integer) - count of people who declined the event 
+    Interested_count (integer) - count of people who marked “Interested” in the event
+    Maybe_count (integer) - same as interested count
+    Noreply_count (integer) - count of no-reply of invitees in an event.
+    Updated_time (Time) - The most recent time of the event (if updated by the owner).
+    ")
         )
       }
       
@@ -223,5 +307,38 @@ server <- function(input, output){
     wordcloud(words = d$word, freq = d$freq, min.freq = input$freq,
               max.words=input$max, random.order=FALSE, rot.per=0.35, 
               colors=brewer.pal(8, "Dark2"))
+  })
+  
+  
+  ######################## machine learning model ###############################33
+  output$varimp1 <- renderPlot(
+    varImpPlot(regressor1,main="Variable Importance")
+  )
+  output$rmse1 = renderText(
+    rmse1
+  )
+  output$predg1 = renderPlot(
+    ggplot(data=pred_comp, aes(x=Actual, y = Predicted))+geom_point()
+  )
+  output$varimp2 <- renderPlot(
+    xgb.plot.importance (importance_matrix = mat[1:20]) 
+  )
+  output$rmse2 = renderText(
+    rmse1
+  )
+  output$predg2 = renderPlot(
+    ggplot(aes(x=Actual,y=Predictions),data=pred_comp2)+geom_point(col="blue")+xlim(0,50000)+ylim(0,50000)
+    
+  )
+  ntext <- eventReactive(input$pred, {
+    inpt_id = input$inpt_e_id
+    d = read.csv("~/fb_event_minor/model/trainingdata.csv")
+    index = na.omit(d[d$id==inpt_id,]$X)[1]
+    xgbpred1[index]
+  })
+  
+  output$prediction=renderText({
+    
+    ntext()
   })
 }

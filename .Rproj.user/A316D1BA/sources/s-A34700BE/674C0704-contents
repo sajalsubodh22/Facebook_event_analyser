@@ -1,0 +1,191 @@
+library(shiny)
+library(plotly)
+library(shinythemes)
+
+ui <-fluidPage( 
+  tags$head(
+   tags$style('#home,#pie,#geo,#cloud{background-color:#007FFF;color:white}')
+  ),
+  headerPanel("Facebook Event Analyser"),br(),br(),br(),br(),
+  sidebarLayout(
+    sidebarPanel(
+      wellPanel(
+        actionButton(inputId = "home", label="Home" , width = "100%")
+      ),
+      wellPanel(
+        actionButton(inputId = "pie", label="Pie Chart" , width = "100%")
+      ),
+      wellPanel(
+        actionButton(inputId = "geo", label="Geo Plot" , width = "100%")
+      ),
+      wellPanel(
+        actionButton(inputId = "cloud", label="Word Cloud" , width = "100%")
+      )
+      #selectInput(inputId = "param", label = "Select a parameter", choices = colnames(pie_chart_data))
+    ),
+  mainPanel(
+    uiOutput("main")
+    #plotlyOutput("donut")
+  )
+)
+)
+
+server <- function(input, output){
+  
+  ####---------code for button toggling ---------------- #####
+  values <- reactiveValues(home = 0, pie = 0, geo = 0, cloud = 0)
+
+  observeEvent(input$home, {
+    values$home <- 1
+    values$pie <- 0
+    values$geo <- 0
+    values$cloud <-0
+  })
+  
+  observeEvent(input$pie, {
+    values$home <- 0
+    values$pie <- 1
+    values$geo <- 0
+    values$cloud <- 0
+  })
+  
+  observeEvent(input$geo, {
+    values$home <- 0
+    values$pie <- 0
+    values$geo <- 1
+    values$cloud <-0
+  })
+  
+  observeEvent(input$cloud, {
+    values$home <- 0
+    values$pie <- 0
+    values$geo <- 0
+    values$cloud <-1
+  })
+  
+  output$main <- renderUI(
+    {
+      
+      if(values$home)
+      {
+        tagList(
+          h2("About the project"),br(),paste("This is created by Sajal Subodh")
+        )
+      }else
+        if(values$pie)
+        {
+          tagList(
+            tabsetPanel(
+              type = "tab",
+              tabPanel("Total",plotlyOutput("donut1")),
+              tabPanel("Attending",plotlyOutput("donut2")),
+              tabPanel("Average",plotlyOutput("donut3")),
+              tabPanel("Interested",plotlyOutput("donut4")),
+              tabPanel("No Reply",plotlyOutput("donut5"))
+            )
+          ) 
+        }
+      else
+        if(values$geo)
+        {
+          tagList(
+            selectInput('geo_category','Select an event category', choices = c("All", "Travel","Food","Music","Art","Education"),
+                        selected = "All",selectize=TRUE),
+            plotOutput("geoplot")
+          )
+        }
+      else
+        if(values$cloud)
+          paste("Button #4")
+      else{
+        tagList(
+          h2("About the project"),br(),paste("This is created by Sajal Subodh")
+        )
+      }
+      
+    })
+    
+    
+    ################# end of toggling ########################
+  
+  #################### pie-charts ##########################3  
+  pie_chart_data = read.csv("~/fb_event_minor/d3-charts/pie_chart_data.csv")  
+  output$donut1 <- renderPlotly({
+    p<-pie_chart_data %>%
+    plot_ly(labels = ~categories, values = ~total_count, 
+              textposition = 'inside', textinfo = 'value', hoverinfo = '%',
+              insidetextfont = list(color = '#FFFFFF')) %>%
+      add_pie(hole = 0.6) %>%
+      #layout(plot_bgcolor='rgb(254, 247, 234)') %>%
+      layout(title = "Total events",  showlegend = T,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  })
+  output$donut2 <- renderPlotly({
+    p<-pie_chart_data %>%
+      plot_ly(labels = ~categories, values = ~attending_count, 
+              textposition = 'inside', textinfo = 'value', hoverinfo = '%',
+              insidetextfont = list(color = '#FFFFFF')) %>%
+      add_pie(hole = 0.6) %>%
+      layout(title = "Attending count",  showlegend = T,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  })
+  output$donut3 <- renderPlotly({
+    p<-pie_chart_data %>%
+      plot_ly(labels = ~categories, values = ~average_count, 
+              textposition = 'inside', textinfo = 'value', hoverinfo = '%',
+              insidetextfont = list(color = '#FFFFFF')) %>%
+      add_pie(hole = 0.6) %>%
+      layout(title = "Average Attending Count",  showlegend = T,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  })
+  output$donut4 <- renderPlotly({
+    p<-pie_chart_data %>%
+      plot_ly(labels = ~categories, values = ~interested_count, 
+              textposition = 'inside', textinfo = 'value', hoverinfo = '%',
+              insidetextfont = list(color = '#FFFFFF')) %>%
+      add_pie(hole = 0.6) %>%
+      layout(title = "Interested Count",  showlegend = T,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  })
+  output$donut5 <- renderPlotly({
+    p<-pie_chart_data %>%
+      plot_ly(labels = ~categories, values = ~noreply_count, 
+              textposition = 'inside', textinfo = 'value', hoverinfo = '%',
+              insidetextfont = list(color = '#FFFFFF')) %>%
+      add_pie(hole = 0.6) %>%
+      layout(title = "No Reply Count",  showlegend = T,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  })
+  
+  ############################ geo plot #################################
+  world_map <- map_data("world")
+  
+  base_map <- ggplot() + coord_fixed() + xlab("") + ylab("")
+  #Add map to base plot
+  base_world_messy <- base_map + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), 
+                                       colour="light green", fill="light green")
+  #clean-up
+  cleanup <- 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          panel.background = element_rect(fill = 'white', colour = 'white'), 
+          axis.line = element_line(colour = "white"), legend.position="none",
+          axis.ticks=element_blank(), axis.text.x=element_blank(),
+          axis.text.y=element_blank())
+  
+  base_world <- base_world_messy + cleanup
+  
+  output$geoplot = renderPlot({
+    #if(input$geo_category == 'ALL'){
+      base_world + geom_point(data=geo_data, 
+                   aes(x=longitude, y=latitude, color = category), 
+                   pch=21, size=2, alpha=I(0.4))
+    #}
+  })
+}
+
+shinyApp(ui = ui, server = server)

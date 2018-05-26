@@ -12,7 +12,7 @@ noreply_count = rep(0,5)
 average_count = rep(0,5)
 
 i=0
-for(cat in categories){
+for(cat in categories){f
   i = i+1
   temp_cursor = client$find(paste('{"category":"',cat,'"}',sep=""))
   total_count[i] = length(temp_cursor[[1]])

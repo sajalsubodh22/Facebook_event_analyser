@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1521050136295.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9F52D7B1",
+    "lastKnownWriteTime" : 1521814256,
+    "last_content_update" : 1521814256879,
+    "path" : "~/fb_event_minor/junk.R",
+    "project_path" : "junk.R",
+    "properties" : {
+        "cursorPosition" : "79,54",
+        "scrollLine" : "62",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

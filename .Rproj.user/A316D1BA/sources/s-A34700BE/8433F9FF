@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1521739619493.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8433F9FF",
+    "lastKnownWriteTime" : 1521816424,
+    "last_content_update" : 1521816424402,
+    "path" : "~/fb_event_minor/d3-charts/geochart.R",
+    "project_path" : "d3-charts/geochart.R",
+    "properties" : {
+        "cursorPosition" : "12,47",
+        "scrollLine" : "6",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

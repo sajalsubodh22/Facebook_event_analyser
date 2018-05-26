@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1521727168422.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "649415872",
+    "id" : "6AAD19BA",
+    "lastKnownWriteTime" : 1521814668,
+    "last_content_update" : 1521814668764,
+    "path" : "~/fb_event_minor/d3-charts/piechart.R",
+    "project_path" : "d3-charts/piechart.R",
+    "properties" : {
+        "cursorPosition" : "31,0",
+        "scrollLine" : "18"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

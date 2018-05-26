@@ -1,0 +1,25 @@
+library(mongolite)
+library(ggplot2)
+
+client = mongo(collection = "events", db = "precog_fb_data", url = "mongodb://localhost", verbose=TRUE )
+
+categories = c('travel','food','music','art','education')
+
+category = list()
+longitude = list()
+latitude = list()
+
+for(cat in categories){
+  temp_cursor = client$find(paste('{"category":"',cat,'"}',sep=""))
+  category = c(category,temp_cursor$category)
+  longitude = c(longitude, temp_cursor$longitude)
+  latitude = c(latitude, temp_cursor$latitude)
+  }
+category = unlist(category)
+longitude = unlist(longitude)
+latitude = unlist(latitude)
+category = category[1:length(latitude)]
+geo_data = data.frame(category,longitude,latitude)
+
+
+write.csv(geo_data, "geo_data.csv")

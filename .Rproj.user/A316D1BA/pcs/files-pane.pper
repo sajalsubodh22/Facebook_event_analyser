@@ -1,0 +1,9 @@
+{
+    "path" : "~/fb_event_minor",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
